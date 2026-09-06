@@ -5,9 +5,13 @@ const AppContext = createContext(undefined);
 export function AppContextProvider({ children }) {
   //Auth State
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loadingUser, setLoadingUser] = useState(true);
 
-  return <AppContext.Provider value={{}}>{children}</AppContext.Provider>;
+  return (
+    <AppContext.Provider value={{ user, loadingUser }}>
+      {children}
+    </AppContext.Provider>
+  );
 }
 
 export function useAppContext() {
