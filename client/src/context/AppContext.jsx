@@ -8,9 +8,20 @@ const AppContext = createContext(undefined);
 
 export function AppContextProvider({ children }) {
   const navigate = useNavigate();
+
   //Auth State
   const [user, setUser] = useState(null);
   const [loadingUser, setLoadingUser] = useState(true);
+
+  // States
+  const [projects, setProjects] = useState([]);
+  const [loadingProjects, setLoadingProjects] = useState(true);
+  const [activeProject, setActiveProject] = useState(null);
+  const [loadingActiveProject, setLoadingActiveProject] = useState(true);
+  const [chatLoading, setChatLoading] = useState(false);
+  const [generatingProject, setGeneratingProject] = useState(false);
+  const [activeFile, setActiveFile] = useState('/App.js');
+  const [showCode, setShowCode] = useState(false);
 
   //Auth Actions
   const checkSession = async () => {
@@ -57,6 +68,20 @@ export function AppContextProvider({ children }) {
       const errMsg = err?.response?.data?.error || 'Registration failed';
       toast.error(errMsg);
       throw new Error(errMsg);
+    }
+  };
+
+  const logout = async () => {
+    try {
+      await api.post('/api/auth/logout');
+      setUser(null);
+      setProjects([]);
+      setActiveProject(null);
+      toast.success('Logged out successfully');
+      navigate('/login');
+    } catch (err) {
+      console.error('Logout failed:', err);
+      toast.error('Logout failed');
     }
   };
 
