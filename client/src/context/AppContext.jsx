@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useCallback, useContext, useState } from 'react';
 import api from '../api/api';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -125,6 +125,45 @@ export function AppContextProvider({ children }) {
       if (!silent) setLoadingActiveProject(false);
     }
   };
+
+  // Automatically poll active project status if generating or pending
+  useEffect(() => {
+    if (!activeProject?._id || !user) return;
+
+    const isOngoing =
+      activeProject.status === 'generating' ||
+      activeProject.status === 'pending' ||
+      activeProject.status === 'revising';
+
+    if (isOngoing) {
+      setChatLoading(true);
+      const interval = setInterval(() => {
+        loadProject(activeProject._id, true);
+      }, 2000);
+      return () => clearInterval(interval);
+    } else {
+      setChatLoading(false);
+    }
+  }, [activeProject?._id, activeProject?.status, loadProject, user]);
+
+  const handleGenerate = useCallback(
+    async (prompt) => {
+      if (!user) return;
+
+      setGeneratingProject(true);
+      try {
+        const { data } = await api.post('/api/projects', { prompt });
+        toast.success('AI Agent is planning structure...');
+        navigate(`/builder/${data._id}`);
+      } catch (err) {
+        console.error('Failed to generate project:', err);
+        toast.error(err?.response?.data?.error || 'Failed to generate project');
+      } finally {
+        setGeneratingProject(false);
+      }
+    },
+    [navigate, user],
+  );
 
   return (
     <AppContext.Provider value={{ user, loadingUser, login, register }}>
