@@ -165,8 +165,44 @@ export function AppContextProvider({ children }) {
     [navigate, user],
   );
 
+  const handleDelete = useCallback(
+    async (id) => {
+      if (!user) return;
+      try {
+        await api.delete(`/api/projects/${id}`);
+        setProjects((prev) => prev.filter((p) => p._id !== id));
+        toast.success('Project deleted successfully');
+      } catch (err) {
+        console.error('Failed to delete project:', err);
+        toast.error('Failed to delete project');
+      }
+    },
+    [user],
+  );
+
   return (
-    <AppContext.Provider value={{ user, loadingUser, login, register }}>
+    <AppContext.Provider
+      value={{
+        user,
+        loadingUser,
+        login,
+        register,
+        projects,
+        loadingProjects,
+        activeProject,
+        loadingActiveProject,
+        chatLoading,
+        generatingProject,
+        activeFile,
+        showCode,
+        setActiveFile,
+        setShowCode,
+        loadProjects,
+        loadProject,
+        handleGenerate,
+        handleDelete,
+      }}
+    >
       {children}
     </AppContext.Provider>
   );
