@@ -4,6 +4,7 @@ import { useAppContext } from '../context/AppContext';
 import Loading from '../components/Loading';
 import BuilderHeader from '../components/BuilderHeader';
 import { FolderTreeIcon, MessageSquareIcon } from 'lucide-react';
+import ChatPanel from '../components/chatPanel';
 
 const BuilderPage = () => {
   const { id } = useParams();
@@ -22,6 +23,9 @@ const BuilderPage = () => {
     loadProject,
     logout,
   } = useAppContext();
+
+  const handleChat = () => {};
+  const [chatLoading, setChatLoading] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -92,7 +96,11 @@ const BuilderPage = () => {
           {/* Sidebar Content */}
           <div className="flex-1 overflow-hidden">
             {leftTab === 'chat' ? (
-              <div>chat panel</div>
+              <ChatPanel
+                messages={activeProject.messages}
+                onSend={handleChat}
+                loading={chatLoading}
+              />
             ) : (
               <div>FileExplorer</div>
             )}
