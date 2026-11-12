@@ -1,6 +1,45 @@
-import { useMemo, useState } from 'react';
-import { SandpackProvider } from '@codesandbox/sandpack-react';
+import { useEffect, useMemo, useState } from 'react';
+import { SandpackProvider, useSandpack } from '@codesandbox/sandpack-react';
 import { detectDependencies } from '../utils/sandpackUtils';
+import { useAppContext } from '../context/AppContext';
+
+// Watches for file edits inside Sandpack editor and saves changes to DB & live state
+function SandpackFileWatcher({ onLiveFilesChange }) {
+  const { sandpack } = useSandpack();
+  const { files } = sandpack;
+  const { activeProject, updateProjectFiles } = useAppContext();
+
+  const activeProjectRef = useRef(activeProject);
+
+  useEffect(() => {
+    activeProjectRef.current = activeProject;
+  }, [activeProject]);
+
+  useEffect(() => {
+    const project = activeProjectRef.current;
+    if (!project) return;
+    const updatedFiles = {};
+    let hasChanges = false;
+
+    for (const [path, fileObj] of Object.entries(files)) {
+      const fileCode = fileObj.code;
+      updatedFiles[path] = fileCode;
+      const originalContent =
+        typeof project.files[path] === 'string'
+          ? project.files[path]
+          : project.files[path]?.content;
+      if (originalContent !== undefined && originalContent !== fileCode) {
+        hasChanges = true;
+      }
+    }
+    //Sync live files to parent
+    onLiveFilesChange(updatedFiles);
+    if (hasChanges) {
+      updateProjectFiles(updatedFiles);
+    }
+  }, [files]);
+  return null;
+}
 
 const PreviewPanel = ({ project, activeFile, showCode }) => {
   const [showErrorOverlay, setShowErrorOverlay] = useState(true);
@@ -15,6 +54,19 @@ const PreviewPanel = ({ project, activeFile, showCode }) => {
     setPrevProjectKey(currentKey);
     setLiveFiles(project.files);
   }
+
+  const handleLiveFilesChange = (newFiles) => {
+    setLiveFiles((prev) => {
+      let changed = false;
+      for (const [p, code] of Object.entries(newFiles)) {
+        if (prev[p] !== code) {
+          changed = true;
+          break;
+        }
+      }
+      return changed ? newFiles : prev;
+    });
+  };
 
   //Convert liveFiles to Sandpack  format
   const sandpackFiles = useMemo(() => {
@@ -74,7 +126,10 @@ const PreviewPanel = ({ project, activeFile, showCode }) => {
             lineHeight: '1.6',
           },
         }}
-      ></SandpackProvider>
+      >
+        <SandpackFileWatcher onLiveFilesChange={handleLiveFilesChange} />
+        <p>SandpackErrorMonitor</p>
+      </SandpackProvider>
     </div>
   );
 };
