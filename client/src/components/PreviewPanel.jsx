@@ -95,7 +95,7 @@ const PreviewPanel = ({ project, activeFile, showCode }) => {
   }, [liveFiles]);
 
   return (
-    <div>
+    <div className="h-full w-full">
       <SandpackProvider
         key={project._id}
         template="react"
