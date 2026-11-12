@@ -3,6 +3,7 @@ import api from '../api/api';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
+import debounce from 'lodash.debounce';
 
 const AppContext = createContext(undefined);
 
@@ -205,6 +206,33 @@ export function AppContextProvider({ children }) {
     [activeProject, user],
   );
 
+  const debouncedSave = React.useMemo(
+    () =>
+      debounce(async (files, id) => {
+        try {
+          await api.put(`/api/projects/${id}/files`, { files });
+        } catch (err) {
+          console.error('Failed to auto-save files:', err);
+          toast.error('Failed to save code modifications');
+        }
+      }, 1000),
+    [],
+  );
+
+  useEffect(() => {
+    return () => {
+      debouncedSave.cancel();
+    };
+  }, [debouncedSave]);
+
+  const updateProjectFiles = useCallback(
+    async (files) => {
+      if (!activeProject || !user) return;
+      debouncedSave(files, activeProject._id);
+    },
+    [activeProject, user, debouncedSave],
+  );
+
   return (
     <AppContext.Provider
       value={{
@@ -228,6 +256,7 @@ export function AppContextProvider({ children }) {
         handleDelete,
         logout,
         handleChat,
+        updateProjectFiles,
       }}
     >
       {children}
