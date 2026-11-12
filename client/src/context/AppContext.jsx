@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useState } from 'react';
+import React, { createContext, useCallback, useContext, useState } from 'react';
 import api from '../api/api';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -38,7 +38,7 @@ export function AppContextProvider({ children }) {
 
   useEffect(() => {
     checkSession();
-  }, [checkSession]);
+  }, []);
 
   const login = async (email, password) => {
     try {
