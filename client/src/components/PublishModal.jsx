@@ -3,7 +3,7 @@ import React from 'react';
 import toast from 'react-hot-toast';
 
 const PublishModal = ({ publishUrl, onClose }) => {
-  const handleCopyUrl = () => {
+  const handleCopyLink = () => {
     if (!publishUrl) return;
     navigator.clipboard.writeText(publishUrl);
     toast.success('Copied to clipboard');
