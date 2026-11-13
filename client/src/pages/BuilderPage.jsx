@@ -7,6 +7,7 @@ import { FolderTreeIcon, MessageSquareIcon } from 'lucide-react';
 import ChatPanel from '../components/chatPanel';
 import FileExplorer from '../components/FileExplorer';
 import PreviewPanel from '../components/PreviewPanel';
+import AgentProgressDashboard from '../components/AgentProgressDashboard';
 
 const BuilderPage = () => {
   const { id } = useParams();
@@ -119,7 +120,7 @@ const BuilderPage = () => {
           {activeProject.status === 'pending' ||
           activeProject.status === 'generating' ||
           activeProject.status === 'failed' ? (
-            <Loading />
+            <AgentProgressDashboard project={activeProject} />
           ) : (
             <PreviewPanel
               project={activeProject}
