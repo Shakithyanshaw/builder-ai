@@ -8,6 +8,7 @@ import ChatPanel from '../components/chatPanel';
 import FileExplorer from '../components/FileExplorer';
 import PreviewPanel from '../components/PreviewPanel';
 import AgentProgressDashboard from '../components/AgentProgressDashboard';
+import PublishModal from '../components/PublishModal';
 
 const BuilderPage = () => {
   const { id } = useParams();
@@ -130,6 +131,12 @@ const BuilderPage = () => {
           )}
         </div>
       </div>
+      {publishUrl && (
+        <PublishModal
+          publishUrl={publishUrl}
+          onClose={() => setPublishUrl(null)}
+        />
+      )}
     </div>
   );
 };
