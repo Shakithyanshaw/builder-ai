@@ -14,7 +14,7 @@ const FullPagePreview = ({ files }) => {
   const sandpackFiles = useMemo(() => {
     if (!files) return {};
     const spFiles = {};
-    for (const [path, content] of Object.entries(liveFiles)) {
+    for (const [path, content] of Object.entries(files)) {
       spFiles[path] = {
         code: content,
       };
@@ -25,7 +25,7 @@ const FullPagePreview = ({ files }) => {
   const dependencies = useMemo(() => {
     if (!files) return {};
     return detectDependencies(files);
-  }, [liveFiles]);
+  }, [files]);
 
   return (
     <div className="h-screen w-screen bg-white overflow-hidden">
